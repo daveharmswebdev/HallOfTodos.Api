@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using HallOfTodos.API.Models;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,14 +25,14 @@ namespace HallOfTodos.API.Controllers
             return Ok(notes);
         }
 
-        [HttpGet("{noteId}")]
+        [HttpGet("{noteId}", Name = "GetTodoNote")]
         public IActionResult GetTodoNote(Guid todoId, Guid noteId)
         {
             var todo = TodosDataStore.Current.Todos
                 .FirstOrDefault(t => t.Id == todoId);
 
             if (todo == null)
-                return NotFound("City Id does not exist");
+                return NotFound("Todo Id does not exist");
 
             var note = todo.Notes.FirstOrDefault(n => n.Id == noteId);
 
@@ -39,6 +40,28 @@ namespace HallOfTodos.API.Controllers
                 return NotFound("Note Id does not exit.");
 
             return Ok(note);
+        }
+
+        [HttpPost]
+        public IActionResult CreateTodoNote(Guid todoId,
+            [FromBody] TodoNoteCreateDto todoNoteCreate)
+        {
+            var todo = TodosDataStore.Current.Todos
+                .FirstOrDefault(t => t.Id == todoId);
+
+            if (todo == null)
+                return NotFound("Todo Id does not exist");
+
+            var todoNote = new TodoNotesDto()
+            {
+                Id = Guid.NewGuid(),
+                Title = todoNoteCreate.Title,
+                Details = todoNoteCreate.Details
+            };
+
+            todo.Notes.Add(todoNote);
+
+            return CreatedAtRoute("GetTodoNote", new { todoId, noteId = todoNote.Id }, todoNote);
         }
     }
 }
