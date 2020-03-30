@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 
 namespace HallOfTodos.API
 {
@@ -17,11 +18,12 @@ namespace HallOfTodos.API
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().AddMvcOptions(o =>
-            {
-                o.EnableEndpointRouting = false;
-                o.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter());
-            });
+            services.AddMvc()
+                .AddMvcOptions(o =>
+                    {
+                        o.EnableEndpointRouting = false;
+                    })
+                .AddNewtonsoftJson();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
