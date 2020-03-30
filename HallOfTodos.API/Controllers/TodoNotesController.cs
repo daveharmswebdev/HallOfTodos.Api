@@ -1,6 +1,7 @@
 ﻿using HallOfTodos.API.Models;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,18 +13,39 @@ namespace HallOfTodos.API.Controllers
     [Route("api/todos/{todoId}/notes")]
     public class TodoNotesController : ControllerBase
     {
+        private readonly ILogger<TodoNotesController> _logger;
+
+        public TodoNotesController(ILogger<TodoNotesController> logger)
+        {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
         [HttpGet]
         public IActionResult GetTodoNotes(Guid todoId)
         {
-            var todo = TodosDataStore.Current.Todos
-                .FirstOrDefault(t => t.Id == todoId);
+            try
+            {
+                throw new Exception("Nlog test");
 
-            if (todo == null)
-                return NotFound();
+                var todo = TodosDataStore.Current.Todos
+                    .FirstOrDefault(t => t.Id == todoId);
 
-            var notes = todo.Notes;
+                if (todo == null)
+                {
+                    _logger.LogInformation($"Todo with id {todoId} was not found when accessing todo note.");
+                    return NotFound();
+                }
 
-            return Ok(notes);
+                var notes = todo.Notes;
+
+                return Ok(notes);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical($"Exception while getting todo notes for todo with the id {todoId}.", ex);
+                return StatusCode(500, "A problem happened while handling your request.");
+            }
+
         }
 
         [HttpGet("{noteId}", Name = "GetTodoNote")]
