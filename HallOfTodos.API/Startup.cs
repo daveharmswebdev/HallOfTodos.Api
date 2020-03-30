@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
+using HallOfTodos.API.Services;
 
 namespace HallOfTodos.API
 {
@@ -24,6 +25,11 @@ namespace HallOfTodos.API
                         o.EnableEndpointRouting = false;
                     })
                 .AddNewtonsoftJson();
+#if DEBUG
+            services.AddTransient<IMailService, LocalMailService>();
+#else
+            services.AddTransient<IMailService, CloudMailService>();
+#endif
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

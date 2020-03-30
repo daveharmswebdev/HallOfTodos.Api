@@ -1,4 +1,5 @@
 ﻿using HallOfTodos.API.Models;
+using HallOfTodos.API.Services;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -14,10 +15,12 @@ namespace HallOfTodos.API.Controllers
     public class TodoNotesController : ControllerBase
     {
         private readonly ILogger<TodoNotesController> _logger;
+        private readonly IMailService _localMailService;
 
-        public TodoNotesController(ILogger<TodoNotesController> logger)
+        public TodoNotesController(ILogger<TodoNotesController> logger, IMailService localMailService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _localMailService = localMailService ?? throw new ArgumentNullException(nameof(localMailService));
         }
 
         [HttpGet]
@@ -25,8 +28,6 @@ namespace HallOfTodos.API.Controllers
         {
             try
             {
-                throw new Exception("Nlog test");
-
                 var todo = TodosDataStore.Current.Todos
                     .FirstOrDefault(t => t.Id == todoId);
 
@@ -154,22 +155,38 @@ namespace HallOfTodos.API.Controllers
         [HttpDelete("{id}")]
         public IActionResult DeleteTodoNote(Guid todoId, Guid id)
         {
-            // check for city
-            var todo = TodosDataStore.Current.Todos
-                .FirstOrDefault(t => t.Id == todoId);
+            try
+            {
+                // check for city
+                var todo = TodosDataStore.Current.Todos
+                    .FirstOrDefault(t => t.Id == todoId);
 
-            if (todo == null)
-                return NotFound("Todo Id does not exist");
+                if (todo == null)
+                {
+                    _logger.LogInformation($"Todo with id {todoId} was not found when accessing todo note.");
+                    return NotFound("Todo Id does not exist");
+                }
 
-            // check for note
-            var note = todo.Notes.FirstOrDefault(n => n.Id == id);
+                // check for note
+                var note = todo.Notes.FirstOrDefault(n => n.Id == id);
 
-            if (note == null)
-                return NotFound("Note Id does not exist");
+                if (note == null)
+                {
+                    _logger.LogInformation($"Todo with id {todoId} was not found when accessing todo note.");
+                    return NotFound("Note Id does not exist");
+                }
 
-            todo.Notes.Remove(note);
+                todo.Notes.Remove(note);
+                _localMailService.Send($"TodoNote {id} of Todo {todoId} Deletion.", $"TodoNote {id} of Todo {todoId} Deletion. If this was a mistake please address accordingly");
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical($"Exception while deleting todo notes for todo with the id {todoId}.", ex);
+                return StatusCode(500, "A problem happened while handling your delete request.");
+            }
 
-            return NoContent();
+
         }
     }
 }
