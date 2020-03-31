@@ -1,15 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using HallOfTodos.API.Services;
+using HallOfTodos.API.Contexts;
+using Microsoft.EntityFrameworkCore;
 
 namespace HallOfTodos.API
 {
@@ -30,6 +25,11 @@ namespace HallOfTodos.API
 #else
             services.AddTransient<IMailService, CloudMailService>();
 #endif
+            var connectionString = @"Server=(localdb)\mssqllocaldb;Database=HallOfTodosDb;Trusted_Connection=True;";
+            services.AddDbContext<TodoContext>(o =>
+            {
+                o.UseSqlServer(connectionString);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

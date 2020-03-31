@@ -76,7 +76,7 @@ namespace HallOfTodos.API.Controllers
             if (todo == null)
                 return NotFound("Todo Id does not exist");
 
-            var todoNote = new TodoNotesDto()
+            var todoNote = new TodoNoteDto()
             {
                 Id = Guid.NewGuid(),
                 Title = todoNoteCreate.Title,
