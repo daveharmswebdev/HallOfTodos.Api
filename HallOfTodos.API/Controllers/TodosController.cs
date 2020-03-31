@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using HallOfTodos.API.Models;
+using HallOfTodos.API.Services;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,17 +13,28 @@ namespace HallOfTodos.API.Controllers
     [Route("api/todos")]
     public class TodosController : ControllerBase
     {
+        private readonly ITodoRepository _todoRepository;
+        private readonly IMapper _mapper;
+
+        public TodosController(ITodoRepository todoRepository, IMapper mapper)
+        {
+            _todoRepository = todoRepository;
+            _mapper = mapper;
+        }
+
         [HttpGet]
         public IActionResult GetTodos()
         {
-            return Ok(TodosDataStore.Current.Todos);
+            var todoEntities = _todoRepository.GetTodos();
+            var results = _mapper.Map<IEnumerable<TodoWithoutNotesDto>>(todoEntities);
+
+            return Ok(results);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetTodo(Guid id)
+        public IActionResult GetTodo(Guid id, [FromQuery] bool includeNotes = false)
         {
-            var todoToReturn = TodosDataStore
-                .Current.Todos.FirstOrDefault(t => t.Id == id);
+            var todoToReturn = _todoRepository.GetTodo(id, includeNotes);
 
             if (todoToReturn == null)
                 return NotFound();

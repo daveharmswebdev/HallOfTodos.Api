@@ -5,11 +5,20 @@ using Microsoft.Extensions.Hosting;
 using HallOfTodos.API.Services;
 using HallOfTodos.API.Contexts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using System;
+using AutoMapper;
 
 namespace HallOfTodos.API
 {
     public class Startup
     {
+        private readonly IConfiguration _configuration;
+
+        public Startup(IConfiguration configuration)
+        {
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        }
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
@@ -25,11 +34,14 @@ namespace HallOfTodos.API
 #else
             services.AddTransient<IMailService, CloudMailService>();
 #endif
-            var connectionString = @"Server=(localdb)\mssqllocaldb;Database=HallOfTodosDb;Trusted_Connection=True;";
+            var connectionString = _configuration["connectionStrings:HallOfTodosDbConnectionString"];
             services.AddDbContext<TodoContext>(o =>
             {
                 o.UseSqlServer(connectionString);
             });
+
+            services.AddScoped<ITodoRepository, TodoRepository>();
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
