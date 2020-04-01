@@ -18,8 +18,8 @@ namespace HallOfTodos.API.Controllers
 
         public TodosController(ITodoRepository todoRepository, IMapper mapper)
         {
-            _todoRepository = todoRepository;
-            _mapper = mapper;
+            _todoRepository = todoRepository ?? throw new ArgumentNullException(nameof(todoRepository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet]
@@ -34,12 +34,15 @@ namespace HallOfTodos.API.Controllers
         [HttpGet("{id}")]
         public IActionResult GetTodo(Guid id, [FromQuery] bool includeNotes = false)
         {
-            var todoToReturn = _todoRepository.GetTodo(id, includeNotes);
+            var todoEntity = _todoRepository.GetTodo(id, includeNotes);
 
-            if (todoToReturn == null)
+            if (todoEntity == null)
                 return NotFound();
 
-            return Ok(todoToReturn);
+            if (includeNotes)
+                return Ok(_mapper.Map<TodoDto>(todoEntity));
+
+            return Ok(_mapper.Map<TodoWithoutNotesDto>(todoEntity));
         }
 
     }

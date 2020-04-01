@@ -1,4 +1,6 @@
-﻿using HallOfTodos.API.Models;
+﻿using AutoMapper;
+using HallOfTodos.API.Entities;
+using HallOfTodos.API.Models;
 using HallOfTodos.API.Services;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -16,11 +18,19 @@ namespace HallOfTodos.API.Controllers
     {
         private readonly ILogger<TodoNotesController> _logger;
         private readonly IMailService _localMailService;
+        private readonly ITodoRepository _todoRepository;
+        private readonly IMapper _mapper;
 
-        public TodoNotesController(ILogger<TodoNotesController> logger, IMailService localMailService)
+        public TodoNotesController(
+            ILogger<TodoNotesController> logger,
+            IMailService localMailService,
+            ITodoRepository todoRepository,
+            IMapper mapper)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _localMailService = localMailService ?? throw new ArgumentNullException(nameof(localMailService));
+            _todoRepository = todoRepository ?? throw new ArgumentNullException(nameof(todoRepository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet]
@@ -28,8 +38,7 @@ namespace HallOfTodos.API.Controllers
         {
             try
             {
-                var todo = TodosDataStore.Current.Todos
-                    .FirstOrDefault(t => t.Id == todoId);
+                var todo = _todoRepository.GetTodo(todoId, true);
 
                 if (todo == null)
                 {
@@ -37,7 +46,8 @@ namespace HallOfTodos.API.Controllers
                     return NotFound();
                 }
 
-                var notes = todo.Notes;
+                var todoNotes = _todoRepository.GetTodoNotes(todoId);
+                var notes = _mapper.Map<IEnumerable<TodoNoteDto>>(todoNotes);
 
                 return Ok(notes);
             }
@@ -52,16 +62,17 @@ namespace HallOfTodos.API.Controllers
         [HttpGet("{noteId}", Name = "GetTodoNote")]
         public IActionResult GetTodoNote(Guid todoId, Guid noteId)
         {
-            var todo = TodosDataStore.Current.Todos
-                .FirstOrDefault(t => t.Id == todoId);
+            var todo = _todoRepository.GetTodo(todoId, true);
 
             if (todo == null)
                 return NotFound("Todo Id does not exist");
 
-            var note = todo.Notes.FirstOrDefault(n => n.Id == noteId);
+            var noteEntity = _todoRepository.GetSingleTodoNote(todoId, noteId);
 
-            if (note == null)
+            if (noteEntity == null)
                 return NotFound("Note Id does not exit.");
+
+            var note = _mapper.Map<TodoNoteDto>(noteEntity);
 
             return Ok(note);
         }
@@ -70,22 +81,20 @@ namespace HallOfTodos.API.Controllers
         public IActionResult CreateTodoNote(Guid todoId,
             [FromBody] TodoNoteCreateDto todoNoteCreate)
         {
-            var todo = TodosDataStore.Current.Todos
-                .FirstOrDefault(t => t.Id == todoId);
+            var todo = _todoRepository.TodoExists(todoId);
 
-            if (todo == null)
+            if (!todo)
                 return NotFound("Todo Id does not exist");
 
-            var todoNote = new TodoNoteDto()
-            {
-                Id = Guid.NewGuid(),
-                Title = todoNoteCreate.Title,
-                Details = todoNoteCreate.Details
-            };
+            var todoNoteEntity = _mapper.Map<TodoNoteEntity>(todoNoteCreate);
 
-            todo.Notes.Add(todoNote);
+            _todoRepository.AddNoteToTodo(todoId, todoNoteEntity);
 
-            return CreatedAtRoute("GetTodoNote", new { todoId, noteId = todoNote.Id }, todoNote);
+            _todoRepository.Save();
+
+            var noteDtoToReturn = _mapper.Map<TodoNoteDto>(todoNoteEntity);
+
+            return CreatedAtRoute("GetTodoNote", new { todoId, noteId = noteDtoToReturn.Id }, noteDtoToReturn);
         }
 
         [HttpPut("{id}")]

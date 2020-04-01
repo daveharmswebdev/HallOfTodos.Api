@@ -8,13 +8,15 @@ using System.Threading.Tasks;
 
 namespace HallOfTodos.API.Profiles
 {
-    public class TodoProfile : Profile
+    public class TodoNotesProfile : Profile
     {
-        public TodoProfile()
+        public TodoNotesProfile()
         {
-            // reads
-            CreateMap<TodoEntity, TodoWithoutNotesDto>();
-            CreateMap<TodoEntity, TodoDto>();
+            // create
+            CreateMap<TodoNoteCreateDto, TodoNoteEntity>();
+
+            // read
+            CreateMap<TodoNoteEntity, TodoNoteDto>();
         }
     }
 }
