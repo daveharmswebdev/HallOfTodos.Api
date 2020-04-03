@@ -66,13 +66,12 @@ namespace HallOfTodos.API
             app.UseSwaggerUI(c => 
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "HallOfTodos API v1");
+                c.RoutePrefix = string.Empty;
             });
 
             app.UseStatusCodePages();
 
-            app.UseMvc();
-
-            
+            app.UseMvc();  
         }
     }
 }
