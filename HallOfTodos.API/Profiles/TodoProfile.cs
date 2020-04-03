@@ -16,6 +16,7 @@ namespace HallOfTodos.API.Profiles
             CreateMap<TodoEntity, TodoWithoutNotesDto>();
             CreateMap<TodoEntity, TodoDto>();
             CreateMap<TodoCreateDto, TodoEntity>();
+            CreateMap<TodoUpdateDto, TodoEntity>().ReverseMap();
         }
     }
 }
