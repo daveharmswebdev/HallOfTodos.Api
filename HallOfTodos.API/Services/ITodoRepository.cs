@@ -12,6 +12,10 @@ namespace HallOfTodos.API.Services
 
         TodoEntity GetTodo(Guid todoId, bool includesNotes);
 
+        void CreateTodo(TodoEntity todo);
+
+        void DeleteTodo(TodoEntity todo);
+
         IEnumerable<TodoNote> GetTodoNotes(Guid todoId);
 
         TodoNote GetSingleTodoNote(Guid todoId, Guid id);

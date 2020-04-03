@@ -15,6 +15,7 @@ namespace HallOfTodos.API.Profiles
             // reads
             CreateMap<TodoEntity, TodoWithoutNotesDto>();
             CreateMap<TodoEntity, TodoDto>();
+            CreateMap<TodoCreateDto, TodoEntity>();
         }
     }
 }

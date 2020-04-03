@@ -23,6 +23,16 @@ namespace HallOfTodos.API.Services
             todo.Notes.Add(todoNote);
         }
 
+        public void CreateTodo(TodoEntity todo)
+        {
+            _context.Add(todo);
+        }
+
+        public void DeleteTodo(TodoEntity todo)
+        {
+            _context.Remove(todo);
+        }
+
         public void DeleteTodoNote(TodoNote todoNote)
         {
             _context.TodoNotes.Remove(todoNote);
