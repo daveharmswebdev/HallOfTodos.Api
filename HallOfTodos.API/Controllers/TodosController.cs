@@ -29,7 +29,7 @@ namespace HallOfTodos.API.Controllers
         public IActionResult GetTodos()
         {
             var todoEntities = _todoRepository.GetTodos();
-            var results = _mapper.Map<IEnumerable<TodoWithoutNotesDto>>(todoEntities);
+            var results = _mapper.Map<IEnumerable<TodoDto>>(todoEntities);
 
             return Ok(results);
         }

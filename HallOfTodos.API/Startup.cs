@@ -41,6 +41,15 @@ namespace HallOfTodos.API
                 o.UseSqlServer(connectionString);
             });
 
+            services.AddCors(opt => 
+            {
+                opt.AddPolicy("CorsPolicy", policy =>
+                {
+                    policy.AllowAnyHeader().AllowAnyMethod()
+                        .WithOrigins("http://localhost:4200");
+                });
+            });
+
             services.AddScoped<ITodoRepository, TodoRepository>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddSwaggerGen(c =>
@@ -70,8 +79,10 @@ namespace HallOfTodos.API
             });
 
             app.UseStatusCodePages();
+            app.UseCors("CorsPolicy");
 
-            app.UseMvc();  
+            app.UseMvc();
+
         }
     }
 }

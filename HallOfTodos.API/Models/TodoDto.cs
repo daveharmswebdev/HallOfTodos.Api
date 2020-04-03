@@ -17,6 +17,13 @@ namespace HallOfTodos.API.Models
         public bool Complete { get; set; }
         public DateTime? DueDate { get; set; }
         public DateTime? CompleteDate { get; set; }
+        public int TotalNotes
+        {
+            get
+            {
+                return Notes.Count;
+            }
+        }
         public ICollection<TodoNoteDto> Notes { get; set; }
             = new List<TodoNoteDto>();
     }

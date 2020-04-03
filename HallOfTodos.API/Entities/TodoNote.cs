@@ -20,6 +20,7 @@ namespace HallOfTodos.API.Entities
         [MaxLength(200)]
         public string Details { get; set; }
         public string WrittenBy { get; set; }
+        [ForeignKey("TodoId")]
         public TodoEntity Todo { get; set; }
         public Guid TodoId { get; set; }
     }

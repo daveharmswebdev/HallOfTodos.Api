@@ -57,7 +57,8 @@ namespace HallOfTodos.API.Services
 
         public IEnumerable<TodoEntity> GetTodos()
         {
-            return _context.Todos.OrderBy(t => t.Todo).ToList();
+            var todos = _context.Todos.Include(t => t.Notes).OrderBy(t => t.Todo).ToList();
+            return todos;
         }
 
         public bool Save()
