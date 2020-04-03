@@ -15,5 +15,6 @@ namespace HallOfTodos.API.Models
 
         [MaxLength(200)]
         public string Details { get; set; }
+        public string WrittenBy { get; set; }
     }
 }

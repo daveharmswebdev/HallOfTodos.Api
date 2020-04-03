@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace HallOfTodos.API.Entities
 {
     [JsonObject(IsReference = true)]
-    public class TodoNoteEntity
+    public class TodoNote
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

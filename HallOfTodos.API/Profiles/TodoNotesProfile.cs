@@ -1,10 +1,4 @@
 ﻿using AutoMapper;
-using HallOfTodos.API.Entities;
-using HallOfTodos.API.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace HallOfTodos.API.Profiles
 {
@@ -13,10 +7,13 @@ namespace HallOfTodos.API.Profiles
         public TodoNotesProfile()
         {
             // create
-            CreateMap<TodoNoteCreateDto, TodoNoteEntity>();
+            CreateMap<Models.TodoNoteCreateDto, Entities.TodoNote>();
 
             // read
-            CreateMap<TodoNoteEntity, TodoNoteDto>();
+            CreateMap<Entities.TodoNote, Models.TodoNoteDto>();
+
+            // updated
+            CreateMap<Models.TodoNoteUpdateDto, Entities.TodoNote>().ReverseMap();
         }
     }
 }

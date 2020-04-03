@@ -22,7 +22,7 @@ namespace HallOfTodos.API.Entities
         public bool Complete { get; set; }
         public DateTime? DueDate { get; set; }
         public DateTime? CompleteDate { get; set; }
-        public ICollection<TodoNoteEntity> Notes { get; set; }
-            = new List<TodoNoteEntity>();
+        public ICollection<TodoNote> Notes { get; set; }
+            = new List<TodoNote>();
     }
 }

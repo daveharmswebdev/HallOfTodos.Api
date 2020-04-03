@@ -26,22 +26,22 @@ namespace HallOfTodos.API
                 logger.Info("Initializing application...");
                 var host = CreateHostBuilder(args).Build();
 
-                using (var scope = host.Services.CreateScope())
-                {
-                    try
-                    {
-                        var context = scope.ServiceProvider.GetService<TodoContext>();
+                //using (var scope = host.Services.CreateScope())
+                //{
+                //    try
+                //    {
+                //        var context = scope.ServiceProvider.GetService<TodoContext>();
 
-                        // for demo purposes, delete the database & migrate on startup so 
-                        // we can start with a clean slate
-                        context.Database.EnsureDeleted();
-                        context.Database.Migrate();
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.Error(ex, "An error occurred while migrating the database.");
-                    }
-                }
+                //        // for demo purposes, delete the database & migrate on startup so 
+                //        // we can start with a clean slate
+                //        context.Database.EnsureDeleted();
+                //        context.Database.Migrate();
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        logger.Error(ex, "An error occurred while migrating the database.");
+                //    }
+                //}
 
                 // run the web app
                 host.Run();

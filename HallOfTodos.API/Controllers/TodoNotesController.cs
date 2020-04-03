@@ -81,12 +81,13 @@ namespace HallOfTodos.API.Controllers
         public IActionResult CreateTodoNote(Guid todoId,
             [FromBody] TodoNoteCreateDto todoNoteCreate)
         {
-            var todo = _todoRepository.TodoExists(todoId);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            if (!todo)
+            if (!_todoRepository.TodoExists(todoId))
                 return NotFound("Todo Id does not exist");
 
-            var todoNoteEntity = _mapper.Map<TodoNoteEntity>(todoNoteCreate);
+            var todoNoteEntity = _mapper.Map<TodoNote>(todoNoteCreate);
 
             _todoRepository.AddNoteToTodo(todoId, todoNoteEntity);
 
@@ -101,21 +102,20 @@ namespace HallOfTodos.API.Controllers
         public IActionResult UpdateTodoNote(Guid todoId, Guid id,
             [FromBody] TodoNoteUpdateDto todoNoteUpdate)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
             // check for city
-            var todo = TodosDataStore.Current.Todos
-                .FirstOrDefault(t => t.Id == todoId);
-
-            if (todo == null)
-                return NotFound("Todo Id does not exist");
+            if (!_todoRepository.TodoExists(todoId))
+                return NotFound($"Todo with id {todoId} does not exist");
 
             // check for note
-            var note = todo.Notes.FirstOrDefault(n => n.Id == id);
+            var todoNoteEntity = _todoRepository.GetSingleTodoNote(todoId, id);
+            if (todoNoteEntity == null)
+                return NotFound();
 
-            if (note == null)
-                return NotFound("Note Id does not exist");
+            _mapper.Map(todoNoteUpdate, todoNoteEntity);
 
-            note.Title = todoNoteUpdate.Title;
-            note.Details = todoNoteUpdate.Details;
+            _todoRepository.Save();
 
             return NoContent();
         }
@@ -125,23 +125,15 @@ namespace HallOfTodos.API.Controllers
             [FromBody] JsonPatchDocument<TodoNoteUpdateDto> patchDoc)
         {
             // check for city
-            var todo = TodosDataStore.Current.Todos
-                .FirstOrDefault(t => t.Id == todoId);
-
-            if (todo == null)
-                return NotFound("Todo Id does not exist");
+            if (!_todoRepository.TodoExists(todoId))
+                return NotFound($"Todo with id {todoId} does not exist");
 
             // check for note
-            var note = todo.Notes.FirstOrDefault(n => n.Id == id);
+            var todoNoteEntity = _todoRepository.GetSingleTodoNote(todoId, id);
+            if (todoNoteEntity == null)
+                return NotFound();
 
-            if (note == null)
-                return NotFound("Note Id does not exist");
-
-            var todoNoteToPatch = new TodoNoteUpdateDto()
-            {
-                Title = note.Title,
-                Details = note.Details
-            };
+            var todoNoteToPatch = _mapper.Map<TodoNoteUpdateDto>(todoNoteEntity);
 
             patchDoc.ApplyTo(todoNoteToPatch, ModelState);
 
@@ -155,8 +147,9 @@ namespace HallOfTodos.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            note.Title = todoNoteToPatch.Title;
-            note.Details = todoNoteToPatch.Details;
+            _mapper.Map(todoNoteToPatch, todoNoteEntity);
+
+            _todoRepository.Save();
 
             return NoContent();
         }
@@ -166,26 +159,26 @@ namespace HallOfTodos.API.Controllers
         {
             try
             {
-                // check for city
-                var todo = TodosDataStore.Current.Todos
-                    .FirstOrDefault(t => t.Id == todoId);
-
-                if (todo == null)
+                if (!_todoRepository.TodoExists(todoId))
                 {
-                    _logger.LogInformation($"Todo with id {todoId} was not found when accessing todo note.");
-                    return NotFound("Todo Id does not exist");
+                    _logger.LogInformation($"Todo with id {todoId} was not found when trying to delete note {id}.");
+                    return NotFound($"Todo with id {todoId} does not exist");
                 }
 
                 // check for note
-                var note = todo.Notes.FirstOrDefault(n => n.Id == id);
-
-                if (note == null)
+                var todoNoteEntity = _todoRepository.GetSingleTodoNote(todoId, id);
+                if (todoNoteEntity == null)
                 {
-                    _logger.LogInformation($"Todo with id {todoId} was not found when accessing todo note.");
-                    return NotFound("Note Id does not exist");
+                    _logger.LogInformation($"Note with id {id} was not found while trying to delete.");
+                    return NotFound($"Note with id {id} does not exist");
                 }
 
-                todo.Notes.Remove(note);
+
+                // check for city
+                _todoRepository.DeleteTodoNote(todoNoteEntity);
+
+                _todoRepository.Save();
+
                 _localMailService.Send($"TodoNote {id} of Todo {todoId} Deletion.", $"TodoNote {id} of Todo {todoId} Deletion. If this was a mistake please address accordingly");
                 return NoContent();
             }

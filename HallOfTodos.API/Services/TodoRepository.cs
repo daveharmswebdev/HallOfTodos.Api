@@ -17,13 +17,18 @@ namespace HallOfTodos.API.Services
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public void AddNoteToTodo(Guid todoId, TodoNoteEntity todoNote)
+        public void AddNoteToTodo(Guid todoId, TodoNote todoNote)
         {
             var todo = GetTodo(todoId);
             todo.Notes.Add(todoNote);
         }
 
-        public TodoNoteEntity GetSingleTodoNote(Guid todoId, Guid id)
+        public void DeleteTodoNote(TodoNote todoNote)
+        {
+            _context.TodoNotes.Remove(todoNote);
+        }
+
+        public TodoNote GetSingleTodoNote(Guid todoId, Guid id)
         {
             return _context.TodoNotes.Where(n => n.TodoId == todoId && n.Id == id).FirstOrDefault();
         }
@@ -35,7 +40,7 @@ namespace HallOfTodos.API.Services
                 : _context.Todos.Where(t => t.Id == todoId).FirstOrDefault();
         }
 
-        public IEnumerable<TodoNoteEntity> GetTodoNotes(Guid todoId)
+        public IEnumerable<TodoNote> GetTodoNotes(Guid todoId)
         {
             return _context.TodoNotes.Where(n => n.TodoId == todoId).ToList();
         }

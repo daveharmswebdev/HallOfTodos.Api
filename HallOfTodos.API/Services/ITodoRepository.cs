@@ -12,14 +12,16 @@ namespace HallOfTodos.API.Services
 
         TodoEntity GetTodo(Guid todoId, bool includesNotes);
 
-        IEnumerable<TodoNoteEntity> GetTodoNotes(Guid todoId);
+        IEnumerable<TodoNote> GetTodoNotes(Guid todoId);
 
-        TodoNoteEntity GetSingleTodoNote(Guid todoId, Guid id);
+        TodoNote GetSingleTodoNote(Guid todoId, Guid id);
 
-        public bool TodoExists(Guid todoId);
+        bool TodoExists(Guid todoId);
 
-        public void AddNoteToTodo(Guid todoId, TodoNoteEntity todoNote);
+        void AddNoteToTodo(Guid todoId, TodoNote todoNote);
 
-        public bool Save();
+        bool Save();
+
+        void DeleteTodoNote(TodoNote todoNote);
     }
 }
