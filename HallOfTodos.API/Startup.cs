@@ -51,6 +51,7 @@ namespace HallOfTodos.API
             });
 
             services.AddScoped<ITodoRepository, TodoRepository>();
+            services.AddScoped<ISuperBeingRepository, SuperBeingRepository>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddSwaggerGen(c =>
             {
