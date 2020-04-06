@@ -10,6 +10,8 @@ namespace HallOfTodos.API.Services
     public interface ISuperBeingRepository
     {
         IEnumerable<SuperBeingPower> GetPowers(int SuperBeingId);
+        SuperBeingPower GetPowerById(int PowerId);
+        bool SuperBeingExists(int SuperBeingId);
         int DeletePower(int PowerId);
         SuperBeingPowerCreateUpdateDto CreatePower(int SuperBeingId, SuperBeingPowerCreateUpdateDto createPowerDto);
     }

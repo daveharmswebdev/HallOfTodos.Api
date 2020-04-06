@@ -46,6 +46,28 @@ namespace HallOfTodos.API.Services
             throw new NotImplementedException();
         }
 
+        public SuperBeingPower GetPowerById(int PowerId)
+        {
+            SuperBeingPower power = new SuperBeingPower();
+            using (SqlConnection con = new SqlConnection(_cs))
+            {
+                con.Open();
+                SqlCommand cmd = new SqlCommand("Personnel.PowerReadByPowerId", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add(new SqlParameter("@PowerId", PowerId));
+                SqlDataReader rdr = cmd.ExecuteReader();
+                while (rdr.Read())
+                {
+                    power.Id = Convert.ToInt32(rdr["Id"]);
+                    power.Name = rdr["Name"].ToString();
+                    power.Description = rdr["Description"].ToString();
+                    power.Id = Convert.ToInt32(rdr["Id"]);
+                    power.SuperBeingId = Convert.ToInt32(rdr["SuperBeingId"]);
+                }
+                return power;
+            }
+        }
+
         public IEnumerable<SuperBeingPower> GetPowers(int SuperBeingId)
         {
             var powers = new List<SuperBeingPower>();
@@ -70,6 +92,11 @@ namespace HallOfTodos.API.Services
                 }
             }
             return powers;
+        }
+
+        public bool SuperBeingExists(int SuperBeingId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

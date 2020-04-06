@@ -19,20 +19,5 @@ namespace HallOfTodos.API.Controllers
             _superBeingRepository = superBeingRepository;
         }
 
-        [HttpGet("{superBeingId}")]
-        public IActionResult GetPowersBySuperBeingId(int superBeingId)
-        {
-            var powers = _superBeingRepository.GetPowers(superBeingId);
-
-            return Ok(powers);
-        }
-
-        [HttpPost("{superBeingId}")]
-        public IActionResult CreateSuperPower(int superBeingId, [FromBody] SuperBeingPowerCreateUpdateDto createDto)
-        {
-
-            var newPower = _superBeingRepository.CreatePower(superBeingId, createDto);
-            return NoContent();
-        }
     }
 }
