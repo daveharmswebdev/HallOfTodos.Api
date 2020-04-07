@@ -22,6 +22,13 @@ namespace HallOfTodos.API.Controllers
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
+        [HttpGet]
+        public IActionResult GetSuperBeings()
+        {
+            return Ok();
+        }
+
+
         [HttpGet("{superBeingId}")]
         public IActionResult GetSuperBeingById(int superBeingId)
         {

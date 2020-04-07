@@ -119,6 +119,11 @@ namespace HallOfTodos.API.Services
 
         }
 
+        public IEnumerable<SuperBeing> GetSuperBeings()
+        {
+            throw new NotImplementedException();
+        }
+
         public bool SuperBeingExists(int superBeingId)
         {
             var superBeing = GetSuperBeingById(superBeingId);
