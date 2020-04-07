@@ -111,14 +111,18 @@ namespace HallOfTodos.API.Services
                     superBeing.FirstName = rdr["FirstName"].ToString();
                     superBeing.LastName = rdr["LastName"].ToString();
                 }
+                if (superBeing.Id == 0)
+                    return null;
+
                 return superBeing;
             }
 
         }
 
-        public bool SuperBeingExists(int SuperBeingId)
+        public bool SuperBeingExists(int superBeingId)
         {
-            throw new NotImplementedException();
+            var superBeing = GetSuperBeingById(superBeingId);
+            return superBeing.Id != 0;
         }
     }
 }
