@@ -11,6 +11,7 @@ namespace HallOfTodos.API.Services
     {
         IEnumerable<SuperBeingPower> GetPowers(int SuperBeingId);
         SuperBeingPower GetPowerById(int PowerId);
+        SuperBeing GetSuperBeingById(int superBeingId);
         bool SuperBeingExists(int SuperBeingId);
         int DeletePower(int PowerId);
         SuperBeingPowerCreateUpdateDto CreatePower(int SuperBeingId, SuperBeingPowerCreateUpdateDto createPowerDto);

@@ -94,6 +94,28 @@ namespace HallOfTodos.API.Services
             return powers;
         }
 
+        public SuperBeing GetSuperBeingById(int superBeingId)
+        {
+            var superBeing = new SuperBeing();
+            using (SqlConnection con = new SqlConnection(_cs))
+            {
+                con.Open();
+                SqlCommand cmd = new SqlCommand("Personnel.SuperBeingGetById", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add(new SqlParameter("@SuperBeingId", superBeingId));
+                SqlDataReader rdr = cmd.ExecuteReader();
+                while (rdr.Read())
+                {
+                    superBeing.Id = Convert.ToInt32(rdr["Id"]);
+                    superBeing.Alias = rdr["Alias"].ToString();
+                    superBeing.FirstName = rdr["FirstName"].ToString();
+                    superBeing.LastName = rdr["LastName"].ToString();
+                }
+                return superBeing;
+            }
+
+        }
+
         public bool SuperBeingExists(int SuperBeingId)
         {
             throw new NotImplementedException();
