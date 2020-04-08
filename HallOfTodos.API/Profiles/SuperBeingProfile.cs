@@ -11,6 +11,7 @@ namespace HallOfTodos.API.Profiles
         public SuperBeingProfile()
         {
             CreateMap<Entities.SuperBeing, Models.SuperBeingDto>();
+            CreateMap<Models.SuperBeingCreateDto, Entities.SuperBeing>();
         }
     }
 }

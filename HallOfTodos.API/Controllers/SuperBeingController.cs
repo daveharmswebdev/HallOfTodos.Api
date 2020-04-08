@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using HallOfTodos.API.Entities;
 using HallOfTodos.API.Models;
 using HallOfTodos.API.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,21 +17,37 @@ namespace HallOfTodos.API.Controllers
     {
         private readonly ISuperBeingRepository _superBeingRepository;
         private readonly IMapper _mapper;
+        private readonly ILogger<SuperBeingController> _logger;
 
-        public SuperBeingController(ISuperBeingRepository superBeingRepository, IMapper mapper)
+        public SuperBeingController(
+            ISuperBeingRepository superBeingRepository,
+            IMapper mapper,
+            ILogger<SuperBeingController> logger)
         {
             _superBeingRepository = superBeingRepository ?? throw new ArgumentNullException(nameof(superBeingRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         [HttpGet]
         public IActionResult GetSuperBeings()
         {
-            return Ok();
+            try
+            {
+                var superBeingEntities = _superBeingRepository.GetSuperBeings();
+                var superBeings = _mapper.Map<IList<SuperBeingDto>>(superBeingEntities);
+                return Ok(superBeings);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical($"Attempted to get superBeings", ex);
+                return StatusCode(500, "A problem happened while handling your request.");
+            }
+            
         }
 
 
-        [HttpGet("{superBeingId}")]
+        [HttpGet("{superBeingId}", Name = "GetSuperBeingById")]
         public IActionResult GetSuperBeingById(int superBeingId)
         {
             try
@@ -45,11 +63,30 @@ namespace HallOfTodos.API.Controllers
 
                 return Ok(superBeingDto);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogCritical($"Attempted to get superBeing {superBeingId}", ex);
                 return StatusCode(500, "A problem happened while handling your request.");
             }
 
+        }
+
+        [HttpPost]
+        public IActionResult CreateSuperBeing([FromBody] SuperBeingCreateDto createDto)
+        {
+            try
+            {
+                var superBeing = _mapper.Map<SuperBeing>(createDto);
+                var createdSuperBeing = _superBeingRepository.CreateSuperBeing(superBeing);
+                var superBeingDto = _mapper.Map<SuperBeingDto>(createdSuperBeing); 
+                return CreatedAtRoute("GetSuperBeingById", new { superBeingId = superBeingDto.Id }, superBeingDto);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical($"Exceptions while creating SuperBeing.", ex);
+                return StatusCode(500, "A problem happened while handling your request.");
+            }
         }
 
     }

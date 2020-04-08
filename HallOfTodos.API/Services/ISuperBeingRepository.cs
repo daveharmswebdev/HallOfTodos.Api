@@ -13,6 +13,7 @@ namespace HallOfTodos.API.Services
         IEnumerable<SuperBeing> GetSuperBeings();
         SuperBeing GetSuperBeingById(int superBeingId);
         bool SuperBeingExists(int superBeingId);
+        SuperBeing CreateSuperBeing(SuperBeing superBeing);
 
         // powers
         IEnumerable<SuperBeingPower> GetPowers(int SuperBeingId);
