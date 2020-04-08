@@ -89,5 +89,23 @@ namespace HallOfTodos.API.Controllers
             }
         }
 
+        [HttpDelete("{superBeingId}")]
+        public IActionResult DeleteSuperBeing(int superBeingId)
+        {
+            try
+            {
+                if (!_superBeingRepository.SuperBeingExists(superBeingId))
+                    return BadRequest($"SuperBeing {superBeingId} does not exist.");
+
+                _superBeingRepository.DeleteSuperBeing(superBeingId);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical($"Exceptions while deleting SuperBeing.", ex);
+                return StatusCode(500, "A problem happened while handling your request.");
+            }
+        }
+
     }
 }

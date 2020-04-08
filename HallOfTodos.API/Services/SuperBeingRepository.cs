@@ -73,6 +73,24 @@ namespace HallOfTodos.API.Services
             throw new NotImplementedException();
         }
 
+        public void DeleteSuperBeing(int superBeingId)
+        {
+            int rowCount;
+            using (SqlConnection con = new SqlConnection(_cs))
+            {
+                con.Open();
+                SqlCommand cmd = new SqlCommand("Personnel.SuperBeingDelete", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add("@RowCount", SqlDbType.Int).Direction = ParameterDirection.Output;
+                cmd.Parameters.Add(new SqlParameter("@SuperBeingId", superBeingId));
+
+                cmd.ExecuteNonQuery();
+                rowCount = Convert.ToInt32(cmd.Parameters["@RowCount"].Value);
+            }
+            if (rowCount < 1)
+                throw new Exception($"Error while deleting superbing {superBeingId}.");
+        }
+
         public SuperBeingPower GetPowerById(int PowerId)
         {
             SuperBeingPower power = new SuperBeingPower();
@@ -172,7 +190,7 @@ namespace HallOfTodos.API.Services
         public bool SuperBeingExists(int superBeingId)
         {
             var superBeing = GetSuperBeingById(superBeingId);
-            return superBeing.Id != 0;
+            return superBeing != null;
         }
     }
 }
