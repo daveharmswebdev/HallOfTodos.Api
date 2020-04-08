@@ -41,9 +41,54 @@ namespace HallOfTodos.API.Services
                 throw new Exception("Something went wrong");
         }
 
+        public SuperBeing CreateSuperBeing(SuperBeing superBeing)
+        {
+            int returnId;
+            using (SqlConnection con = new SqlConnection(_cs))
+            {
+                con.Open();
+                SqlCommand cmd = new SqlCommand("Personnel.SuperBeingCreate", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add("@Id", SqlDbType.Int).Direction = ParameterDirection.Output;
+                cmd.Parameters.Add(new SqlParameter("@Alias", superBeing.Alias)); 
+                cmd.Parameters.Add(new SqlParameter("@FirstName", superBeing.FirstName));
+                cmd.Parameters.Add(new SqlParameter("@LastName", superBeing.LastName));
+
+                cmd.ExecuteNonQuery();
+                returnId = Convert.ToInt32(cmd.Parameters["@Id"].Value);
+            }
+            if (returnId > 0)
+            {
+                superBeing.Id = returnId;
+                return superBeing;
+            }
+            else
+            {
+                throw new Exception("Something went wrong trying to persist the new Super Being");
+            }
+        }
+
         public int DeletePower(int PowerId)
         {
             throw new NotImplementedException();
+        }
+
+        public void DeleteSuperBeing(int superBeingId)
+        {
+            int rowCount;
+            using (SqlConnection con = new SqlConnection(_cs))
+            {
+                con.Open();
+                SqlCommand cmd = new SqlCommand("Personnel.SuperBeingDelete", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add("@RowCount", SqlDbType.Int).Direction = ParameterDirection.Output;
+                cmd.Parameters.Add(new SqlParameter("@SuperBeingId", superBeingId));
+
+                cmd.ExecuteNonQuery();
+                rowCount = Convert.ToInt32(cmd.Parameters["@RowCount"].Value);
+            }
+            if (rowCount < 1)
+                throw new Exception($"Error while deleting superbing {superBeingId}.");
         }
 
         public SuperBeingPower GetPowerById(int PowerId)
@@ -119,10 +164,33 @@ namespace HallOfTodos.API.Services
 
         }
 
+        public IEnumerable<SuperBeing> GetSuperBeings()
+        {
+            DataSet ds = new DataSet();
+            using (SqlConnection con = new SqlConnection(_cs))
+            {
+                con.Open();
+                SqlCommand cmd = new SqlCommand("Personnel.SuperBeingGetAll", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                da.Fill(ds);
+                con.Close();
+
+                return ds.Tables[0].AsEnumerable()
+                    .Select(dataRow => new SuperBeing
+                    {
+                        Id = dataRow.Field<int>("Id"),
+                        Alias = dataRow.Field<string>("Alias"),
+                        FirstName = dataRow.Field<string>("FirstName"),
+                        LastName = dataRow.Field<string>("LastName")
+                    }).ToList();
+            }
+        }
+
         public bool SuperBeingExists(int superBeingId)
         {
             var superBeing = GetSuperBeingById(superBeingId);
-            return superBeing.Id != 0;
+            return superBeing != null;
         }
     }
 }
