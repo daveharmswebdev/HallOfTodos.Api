@@ -22,6 +22,7 @@ namespace HallOfTodos.API.Controllers
         [HttpGet]
         public IActionResult GetPowers(int superBeingId)
         {
+            // added a note
             var powers = _superBeingRepository.GetPowers(superBeingId);
 
             return Ok(powers);
